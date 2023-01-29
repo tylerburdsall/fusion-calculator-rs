@@ -1,0 +1,8 @@
+[package]
+name = "fusion-calculator-rs"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+comfy-table = { version = "6.1" }
+phf = { version = "0.11", default-features = false }
