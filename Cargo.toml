@@ -4,5 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+clap = { version = "4.1.4", features = ["derive"] }
 comfy-table = { version = "6.1" }
-phf = { version = "0.11", default-features = false }
+crossterm = { version = "0.26.0" }
+phf = { version = "0.11", features = ["macros"] }
+itertools = { version = "0.10.5" }
