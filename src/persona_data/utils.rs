@@ -1,4 +1,4 @@
-use super::data::{Arcana, ArcanaCombination, PersonaData};
+use super::data::{Arcana, ArcanaCombination, PersonaData, SPECIAL_PERSONAS};
 use fusion_calculator_rs::FusionCalculatorError;
 use itertools::Itertools;
 use std::collections::{HashMap, HashSet};
@@ -116,9 +116,7 @@ pub fn get_fusion_of<'a>(
     let mut fusions = super::data::PERSONAS
         .into_iter()
         .filter(|(_, persona_data)| {
-            !persona_data.special // For now, filter out special personas
-            && persona_data.arcana == *fused_arcana
-            && persona_data.level <= avg_level
+            persona_data.arcana == *fused_arcana && persona_data.level <= avg_level
         })
         .map(|(k, v)| (*k, v.level))
         .collect::<Vec<(&str, u8)>>();
@@ -199,4 +197,38 @@ pub fn get_possible_fusions_from_persona(
         }
     }
     Ok(fusions)
+}
+
+/// Returns the result of a special fusion between two personas, if applicable
+pub fn get_special_fusion<'a>(first: &'a str, second: &'a str) -> Option<&'a str> {
+    if let Some((persona_name, _)) = SPECIAL_PERSONAS
+        .entries()
+        .find(|(_, value)| value.len() == 2 && value.contains(first) && value.contains(second))
+    {
+        return Some(persona_name);
+    }
+    None
+}
+
+/// Returns the collection of personas required to fuse a special persona, if applicable
+pub fn get_special_fusions_to(name: &str) -> Option<Vec<Vec<String>>> {
+    if let Some(fusions) = SPECIAL_PERSONAS.get(name) {
+        let x = fusions
+            .iter()
+            .map(|persona| {
+                let persona_data = get_persona(persona)
+                    .unwrap_or_else(|_| panic!("Should have gotten data for {persona}"));
+                (*persona, persona_data)
+            })
+            .map(|(name, data)| {
+                vec![
+                    name.to_string(),
+                    data.level.to_string(),
+                    data.arcana.to_string(),
+                ]
+            })
+            .collect::<Vec<Vec<String>>>();
+        return Some(x);
+    }
+    None
 }
