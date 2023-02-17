@@ -4,7 +4,7 @@ use std::fmt::Display;
 use ::phf::phf_map;
 use phf::phf_set;
 
-#[derive(Debug, Eq, Hash, PartialEq, Ord, PartialOrd, Clone, Copy)]
+#[derive(Eq, Hash, PartialEq, Ord, PartialOrd, Copy, Clone, Debug)]
 pub enum Arcana {
     Fool = 1,
     Magician,
