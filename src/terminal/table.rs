@@ -8,7 +8,7 @@ pub fn render_table(headers: Vec<String>, rows: Vec<Vec<String>>) -> String {
         .map(|h| {
             Cell::new(h)
                 .add_attribute(Attribute::Bold)
-                .fg(Color::Cyan)
+                .fg(Color::DarkMagenta)
                 .set_alignment(CellAlignment::Center)
         })
         .collect();

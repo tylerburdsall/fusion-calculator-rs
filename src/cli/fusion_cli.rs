@@ -1,4 +1,4 @@
-use clap::{CommandFactory, Parser};
+use clap::Parser;
 
 #[derive(clap::Parser)]
 #[command(
@@ -23,6 +23,6 @@ pub enum FusionCommand {
     #[command(about = "Perform fusion-related commands")]
     Fuse {
         #[command(subcommand)]
-        operation: super::commands::fuse::FuseCommand 
-    }
+        operation: super::commands::fuse::FuseCommand,
+    },
 }
