@@ -76,7 +76,7 @@ fn get_possible_combinations_to_fuse_persona(
             .get(&arcana_combination.first)
             .unwrap_or_else(|| {
                 panic!(
-                    "Somehow we didn't get a list of Peronas for this Arcana {:?}",
+                    "Somehow we didn't get a list of Personas for this Arcana {:?}",
                     arcana_combination.first
                 )
             })
@@ -85,7 +85,7 @@ fn get_possible_combinations_to_fuse_persona(
                 .get(&arcana_combination.second)
                 .unwrap_or_else(|| {
                     panic!(
-                        "Somehow we didn't get a list of Peronas for this Arcana {:?}",
+                        "Somehow we didn't get a list of Personas for this Arcana {:?}",
                         arcana_combination.second
                     )
                 })
