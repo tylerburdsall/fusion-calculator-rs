@@ -2,9 +2,10 @@ use core::fmt;
 use std::fmt::Display;
 
 use ::phf::phf_map;
+use clap::ValueEnum;
 use phf::phf_set;
 
-#[derive(Eq, Hash, PartialEq, Ord, PartialOrd, Copy, Clone, Debug)]
+#[derive(Eq, Hash, PartialEq, Ord, PartialOrd, Copy, Clone, Debug, ValueEnum)]
 pub enum Arcana {
     Fool = 1,
     Magician,

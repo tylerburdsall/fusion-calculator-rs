@@ -2,19 +2,19 @@ use crate::calculator::fusion_calculator;
 
 #[derive(clap::Parser)]
 pub enum FuseCommand {
-    #[command(about = "Fuse two personas together")]
+    #[command(about = "Fuse two Personas together")]
     Calculate {
         #[arg(long = "first")]
         first: String,
         #[arg(long = "second")]
         second: String,
     },
-    #[command(about = "Show possible fusions with this persona")]
+    #[command(about = "Show possible fusions with this Persona")]
     From {
         #[arg(long = "name")]
         name: String,
     },
-    #[command(about = "Show possible fusions resulting in this persona")]
+    #[command(about = "Show possible fusions resulting in this Persona")]
     To {
         #[arg(long = "name")]
         name: String,

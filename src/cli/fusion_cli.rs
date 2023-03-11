@@ -25,4 +25,9 @@ pub enum FusionCommand {
         #[command(subcommand)]
         operation: super::commands::fuse::FuseCommand,
     },
+    #[command(about = "List info- and data-related commands")]
+    List {
+        #[command(subcommand)]
+        operation: super::commands::list::ListCommand,
+    },
 }

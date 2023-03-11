@@ -2,6 +2,7 @@ use std::vec;
 
 use fusion_calculator_rs::FusionCalculatorError;
 
+use crate::persona_data::data::Arcana;
 use crate::persona_data::utils;
 use crate::terminal::table::render_table;
 use crate::terminal::term::{output, output_err};
@@ -124,4 +125,30 @@ pub fn fusions_to(persona: &str) {
             output_err!("{e}")
         }
     }
+}
+
+pub fn list_all_personas(
+    arcanas: &Vec<Arcana>,
+    min_level: &Option<usize>,
+    max_level: &Option<usize>,
+) {
+    let personas = utils::get_all_personas(arcanas, min_level, max_level);
+    let table = render_table(
+        vec![
+            "Name".to_string(),
+            "Level".to_string(),
+            "Arcana".to_string(),
+        ],
+        personas
+            .into_iter()
+            .map(|(name, data)| {
+                vec![
+                    name.to_string(),
+                    data.level.to_string(),
+                    data.arcana.to_string(),
+                ]
+            })
+            .collect(),
+    );
+    output!("{table}")
 }

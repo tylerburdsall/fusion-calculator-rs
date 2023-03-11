@@ -1,4 +1,4 @@
-use super::data::{Arcana, ArcanaCombination, PersonaData, SPECIAL_PERSONAS};
+use super::data::{Arcana, ArcanaCombination, PersonaData, PERSONAS, SPECIAL_PERSONAS};
 use fusion_calculator_rs::FusionCalculatorError;
 use itertools::Itertools;
 use std::collections::{HashMap, HashSet};
@@ -231,4 +231,50 @@ pub fn get_special_fusions_to(name: &str) -> Option<Vec<Vec<String>>> {
         return Some(x);
     }
     None
+}
+
+/// Returns all Personas
+pub fn get_all_personas(
+    arcana: &Vec<Arcana>,
+    min_level: &Option<usize>,
+    max_level: &Option<usize>,
+) -> Vec<(&'static &'static str, &'static PersonaData)> {
+    let personas: Vec<(&&str, &PersonaData)> =
+        if arcana.is_empty() && min_level.is_none() && max_level.is_none() {
+            let mut first_pass = PERSONAS.entries().collect_vec();
+            // Sort by name, ascending by default
+            first_pass.sort_by(|a, b| a.0.cmp(b.0));
+            first_pass
+        } else {
+            let mut personas_by_filters = PERSONAS
+                .entries()
+                .filter(|(_, data)| {
+                    if !arcana.is_empty() {
+                        arcana.contains(&data.arcana)
+                    } else {
+                        true
+                    }
+                })
+                .filter(|(_, data)| {
+                    if let Some(min) = min_level {
+                        data.level as usize >= *min
+                    } else {
+                        true
+                    }
+                })
+                .filter(|(_, data)| {
+                    if let Some(max) = max_level {
+                        data.level as usize <= *max
+                    } else {
+                        true
+                    }
+                })
+                .collect_vec();
+            personas_by_filters.sort_unstable_by(|a, b| {
+                a.1.arcana.cmp(&b.1.arcana).then(a.1.level.cmp(&b.1.level))
+            });
+            personas_by_filters
+        };
+
+    personas
 }
