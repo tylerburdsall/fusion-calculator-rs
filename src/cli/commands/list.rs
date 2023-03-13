@@ -1,4 +1,6 @@
-use crate::{calculator::fusion_calculator, persona_data::data::Arcana};
+use crate::{
+    calculator::fusion_calculator, cli::fusion_cli::OutputType, persona_data::data::Arcana,
+};
 
 #[derive(clap::Parser)]
 pub enum ListCommand {
@@ -19,7 +21,7 @@ pub enum ListCommand {
     },
 }
 
-pub fn list_command(command: &ListCommand) {
+pub fn list_command(command: &ListCommand, output_type: &OutputType) {
     match command {
         ListCommand::Personas {
             arcana,

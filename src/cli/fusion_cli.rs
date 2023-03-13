@@ -1,4 +1,12 @@
-use clap::Parser;
+use std::process::Output;
+
+use clap::{Parser, ValueEnum};
+
+#[derive(Clone, ValueEnum)]
+pub enum OutputType {
+    Table,
+    Json,
+}
 
 #[derive(clap::Parser)]
 #[command(
@@ -10,6 +18,9 @@ use clap::Parser;
 pub struct FusionCalculatorCli {
     #[clap(subcommand)]
     pub command: FusionCommand,
+
+    #[arg(long, global = true, required = false)]
+    pub output_type: Option<OutputType>,
 }
 
 impl FusionCalculatorCli {

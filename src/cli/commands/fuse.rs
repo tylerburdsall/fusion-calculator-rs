@@ -1,4 +1,4 @@
-use crate::calculator::fusion_calculator;
+use crate::{calculator::fusion_calculator, cli::fusion_cli::OutputType};
 
 #[derive(clap::Parser)]
 pub enum FuseCommand {
@@ -21,7 +21,7 @@ pub enum FuseCommand {
     },
 }
 
-pub fn fuse_command(command: &FuseCommand) {
+pub fn fuse_command(command: &FuseCommand, output_type: &OutputType) {
     match command {
         FuseCommand::Calculate { first, second } => fusion_calculator::fuse_personas(first, second),
         FuseCommand::From { name } => fusion_calculator::fuse_possible_personas_for(name),
