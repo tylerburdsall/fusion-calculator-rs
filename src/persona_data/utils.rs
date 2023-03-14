@@ -1,18 +1,19 @@
 use super::data::{Arcana, ArcanaCombination, PersonaData, PERSONAS, SPECIAL_PERSONAS};
 use fusion_calculator_rs::FusionCalculatorError;
 use itertools::Itertools;
+use serde::Serialize;
 use std::collections::{HashMap, HashSet};
 
-#[derive(Debug, Eq, PartialEq, Clone)]
-pub struct PersonaEntry<'a> {
-    pub name: &'a str,
-    pub data: &'a PersonaData,
+#[derive(Debug, Eq, PartialEq, Clone, Serialize)]
+pub struct PersonaEntry {
+    pub name: String,
+    pub data: PersonaData,
 }
 
-#[derive(Debug, Eq, PartialEq, Clone)]
-pub struct PersonaCombination<'a> {
-    pub first: PersonaEntry<'a>,
-    pub second: PersonaEntry<'a>,
+#[derive(Debug, Eq, PartialEq, Clone, Serialize)]
+pub struct PersonaCombination {
+    pub first: PersonaEntry,
+    pub second: PersonaEntry,
 }
 
 /// Returns the data of a Persona, if it exists
@@ -94,7 +95,7 @@ fn get_possible_combinations_to_fuse_persona(
                     continue;
                 }
                 if let Ok(fusion_result) = get_fusion_of(persona_0, persona_1) {
-                    if fusion_result == persona_name {
+                    if fusion_result.name == persona_name {
                         possible_combinations.insert((*persona_0, *persona_1));
                     }
                 }
@@ -105,10 +106,7 @@ fn get_possible_combinations_to_fuse_persona(
 }
 
 /// Returns the fusion of two Personas, if possible
-pub fn get_fusion_of<'a>(
-    first: &'a str,
-    second: &'a str,
-) -> Result<&'a str, FusionCalculatorError> {
+pub fn get_fusion_of(first: &str, second: &str) -> Result<PersonaEntry, FusionCalculatorError> {
     let p1 = get_persona(first)?;
     let p2 = get_persona(second)?;
     let fused_arcana = get_fused_arcana(&p1.arcana, &p2.arcana)?;
@@ -118,12 +116,15 @@ pub fn get_fusion_of<'a>(
         .filter(|(_, persona_data)| {
             persona_data.arcana == *fused_arcana && persona_data.level <= avg_level
         })
-        .map(|(k, v)| (*k, v.level))
-        .collect::<Vec<(&str, u8)>>();
+        .map(|(k, v)| PersonaEntry {
+            name: k.to_string(),
+            data: *v,
+        })
+        .collect::<Vec<PersonaEntry>>();
     // Sort the available personas in descending order of level, that will be the one closest to the average level
-    fusions.sort_by(|a, b| b.1.cmp(&a.1));
-    if let Some((persona, _)) = fusions.first() {
-        Ok(persona)
+    fusions.sort_by(|a, b| b.data.level.cmp(&a.data.level));
+    if let Some(persona) = fusions.first() {
+        Ok(persona.clone())
     } else {
         Err(FusionCalculatorError::InvalidFusion(format!(
             "There is no valid fusion for Personas {first} and {second}"
@@ -144,13 +145,13 @@ pub fn get_fusions_to(name: &str) -> Result<Vec<PersonaCombination>, FusionCalcu
             .into_iter()
             .map(|(p0, p1)| PersonaCombination {
                 first: PersonaEntry {
-                    name: p0,
-                    data: get_persona(p0)
+                    name: p0.to_string(),
+                    data: *get_persona(p0)
                         .unwrap_or_else(|_| panic!("Somehow we didn't get data for Persona {p0}")),
                 },
                 second: PersonaEntry {
-                    name: p1,
-                    data: get_persona(p1)
+                    name: p1.to_string(),
+                    data: *get_persona(p1)
                         .unwrap_or_else(|_| panic!("Somehow we didn't get data for Persona {p1}")),
                 },
             })
@@ -180,17 +181,14 @@ pub fn get_possible_fusions_from_persona(
         .sorted_by(|a, b| a.1.level.cmp(&b.1.level))
     {
         if let Ok(fused) = get_fusion_of(name, persona_name) {
-            let fused_data = get_persona(fused).unwrap_or_else(|e| {
-                panic!("Somehow we didn't get Persona data for {fused}: {e:?}")
-            });
             let persona_combination = PersonaCombination {
                 first: PersonaEntry {
-                    name: persona_name,
-                    data: persona_data,
+                    name: persona_name.to_string(),
+                    data: *persona_data,
                 },
                 second: PersonaEntry {
-                    name: fused,
-                    data: fused_data,
+                    name: fused.name,
+                    data: fused.data,
                 },
             };
             fusions.push(persona_combination);
@@ -200,18 +198,23 @@ pub fn get_possible_fusions_from_persona(
 }
 
 /// Returns the result of a special fusion between two personas, if applicable
-pub fn get_special_fusion<'a>(first: &'a str, second: &'a str) -> Option<&'a str> {
+pub fn get_special_fusion(first: &str, second: &str) -> Option<PersonaEntry> {
     if let Some((persona_name, _)) = SPECIAL_PERSONAS
         .entries()
         .find(|(_, value)| value.len() == 2 && value.contains(first) && value.contains(second))
     {
-        return Some(persona_name);
+        let persona_data = get_persona(persona_name)
+            .unwrap_or_else(|_| panic!("Should have gotten data for {persona_name}"));
+        return Some(PersonaEntry {
+            name: persona_name.to_string(),
+            data: *persona_data,
+        });
     }
     None
 }
 
 /// Returns the collection of personas required to fuse a special persona, if applicable
-pub fn get_special_fusions_to(name: &str) -> Option<Vec<Vec<String>>> {
+pub fn get_special_fusions_to(name: &str) -> Option<Vec<PersonaEntry>> {
     if let Some(fusions) = SPECIAL_PERSONAS.get(name) {
         let x = fusions
             .iter()
@@ -220,14 +223,11 @@ pub fn get_special_fusions_to(name: &str) -> Option<Vec<Vec<String>>> {
                     .unwrap_or_else(|_| panic!("Should have gotten data for {persona}"));
                 (*persona, persona_data)
             })
-            .map(|(name, data)| {
-                vec![
-                    name.to_string(),
-                    data.level.to_string(),
-                    data.arcana.to_string(),
-                ]
+            .map(|(name, data)| PersonaEntry {
+                name: name.to_string(),
+                data: *data,
             })
-            .collect::<Vec<Vec<String>>>();
+            .collect::<Vec<PersonaEntry>>();
         return Some(x);
     }
     None
@@ -238,12 +238,18 @@ pub fn get_all_personas(
     arcana: &Vec<Arcana>,
     min_level: &Option<usize>,
     max_level: &Option<usize>,
-) -> Vec<(&'static &'static str, &'static PersonaData)> {
-    let personas: Vec<(&&str, &PersonaData)> =
+) -> Vec<PersonaEntry> {
+    let personas: Vec<PersonaEntry> =
         if arcana.is_empty() && min_level.is_none() && max_level.is_none() {
-            let mut first_pass = PERSONAS.entries().collect_vec();
+            let mut first_pass = PERSONAS
+                .entries()
+                .map(|(name, data)| PersonaEntry {
+                    name: name.to_string(),
+                    data: *data,
+                })
+                .collect_vec();
             // Sort by name, ascending by default
-            first_pass.sort_by(|a, b| a.0.cmp(b.0));
+            first_pass.sort_by(|a, b| a.name.cmp(&b.name));
             first_pass
         } else {
             let mut personas_by_filters = PERSONAS
@@ -269,9 +275,16 @@ pub fn get_all_personas(
                         true
                     }
                 })
+                .map(|(name, data)| PersonaEntry {
+                    name: name.to_string(),
+                    data: *data,
+                })
                 .collect_vec();
             personas_by_filters.sort_unstable_by(|a, b| {
-                a.1.arcana.cmp(&b.1.arcana).then(a.1.level.cmp(&b.1.level))
+                a.data
+                    .arcana
+                    .cmp(&b.data.arcana)
+                    .then(a.data.level.cmp(&b.data.level))
             });
             personas_by_filters
         };

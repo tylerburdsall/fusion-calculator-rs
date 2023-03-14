@@ -1,5 +1,3 @@
-use std::process::Output;
-
 use clap::{Parser, ValueEnum};
 
 #[derive(Clone, ValueEnum)]
@@ -19,7 +17,12 @@ pub struct FusionCalculatorCli {
     #[clap(subcommand)]
     pub command: FusionCommand,
 
-    #[arg(long, global = true, required = false)]
+    #[arg(
+        long,
+        help = "Override how we render output",
+        global = true,
+        required = false
+    )]
     pub output_type: Option<OutputType>,
 }
 

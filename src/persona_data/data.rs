@@ -4,8 +4,9 @@ use std::fmt::Display;
 use ::phf::phf_map;
 use clap::ValueEnum;
 use phf::phf_set;
+use serde::Serialize;
 
-#[derive(Eq, Hash, PartialEq, Ord, PartialOrd, Copy, Clone, Debug, ValueEnum)]
+#[derive(Serialize, Eq, Hash, PartialEq, Ord, PartialOrd, Copy, Clone, Debug, ValueEnum)]
 pub enum Arcana {
     Fool = 1,
     Magician,
@@ -46,7 +47,7 @@ pub struct ArcanaCombination {
     pub result: Arcana,
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Serialize)]
 pub struct PersonaData {
     pub level: u8,
     pub arcana: Arcana,

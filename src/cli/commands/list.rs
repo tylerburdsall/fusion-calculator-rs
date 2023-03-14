@@ -27,6 +27,6 @@ pub fn list_command(command: &ListCommand, output_type: &OutputType) {
             arcana,
             min_level,
             max_level,
-        } => fusion_calculator::list_all_personas(arcana, min_level, max_level),
+        } => fusion_calculator::list_all_personas(arcana, min_level, max_level, output_type),
     }
 }

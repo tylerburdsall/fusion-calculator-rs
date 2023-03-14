@@ -23,8 +23,12 @@ pub enum FuseCommand {
 
 pub fn fuse_command(command: &FuseCommand, output_type: &OutputType) {
     match command {
-        FuseCommand::Calculate { first, second } => fusion_calculator::fuse_personas(first, second),
-        FuseCommand::From { name } => fusion_calculator::fuse_possible_personas_for(name),
-        FuseCommand::To { name } => fusion_calculator::fusions_to(name),
+        FuseCommand::Calculate { first, second } => {
+            fusion_calculator::fuse_personas(first, second, output_type)
+        }
+        FuseCommand::From { name } => {
+            fusion_calculator::fuse_possible_personas_for(name, output_type)
+        }
+        FuseCommand::To { name } => fusion_calculator::fusions_to(name, output_type),
     }
 }
