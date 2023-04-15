@@ -1,8 +1,22 @@
 use super::data::{Arcana, ArcanaCombination, PersonaData, PERSONAS, SPECIAL_PERSONAS};
-use fusion_calculator_rs::FusionCalculatorError;
 use itertools::Itertools;
 use serde::Serialize;
-use std::collections::{HashMap, HashSet};
+use std::{collections::{HashMap, HashSet}};
+use thiserror::Error;
+
+#[derive(Error, Debug)]
+pub enum FusionCalculatorError {
+    #[error("A Persona with the name {name:?} could not be found")]
+    PersonaNotFound {
+        name: String
+    },
+
+    #[error("No valid fusion between {first:?} and {second:?}")]
+    InvalidFusion {
+        first: String,
+        second: String,
+    },
+}
 
 #[derive(Debug, Eq, PartialEq, Clone, Serialize)]
 pub struct PersonaEntry {
@@ -21,9 +35,7 @@ pub fn get_persona(name: &str) -> Result<&PersonaData, FusionCalculatorError> {
     if let Some(persona_data) = super::data::PERSONAS.get(name) {
         Ok(persona_data)
     } else {
-        Err(FusionCalculatorError::PersonaNotFound(format!(
-            "{name} is not a valid persona"
-        )))
+        Err(FusionCalculatorError::PersonaNotFound { name: name.to_string() })
     }
 }
 
@@ -42,9 +54,10 @@ fn get_fused_arcana<'a>(
     if let Some(combination) = result {
         Ok(&combination.result)
     } else {
-        Err(FusionCalculatorError::InvalidFusion(format!(
-            "There is no valid fusion for Arcanas {first:?} and {second:?}"
-        )))
+        Err(FusionCalculatorError::InvalidFusion {
+            first: first.to_string(),
+            second: second.to_string()
+        })
     }
 }
 
@@ -126,9 +139,9 @@ pub fn get_fusion_of(first: &str, second: &str) -> Result<PersonaEntry, FusionCa
     if let Some(persona) = fusions.first() {
         Ok(persona.clone())
     } else {
-        Err(FusionCalculatorError::InvalidFusion(format!(
-            "There is no valid fusion for Personas {first} and {second}"
-        )))
+        Err(FusionCalculatorError::InvalidFusion {
+            first: first.to_string(), second: second.to_string()
+        })
     }
 }
 

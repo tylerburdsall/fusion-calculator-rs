@@ -1,6 +1,6 @@
 use std::vec;
+use anyhow::Result;
 
-use fusion_calculator_rs::FusionCalculatorError;
 use itertools::Itertools;
 
 use crate::cli::fusion_cli::OutputType;
@@ -12,7 +12,7 @@ use crate::terminal::term::{output, output_err};
 fn get_fusion<'a>(
     first: &'a str,
     second: &'a str,
-) -> Result<Vec<PersonaEntry>, FusionCalculatorError> {
+) -> Result<Vec<PersonaEntry>> {
     let persona_result = if let Some(special_result) = utils::get_special_fusion(first, second) {
         special_result
     } else {
