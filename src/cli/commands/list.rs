@@ -1,13 +1,11 @@
-use crate::{
-    calculator::fusion_calculator, cli::fusion_cli::OutputType, persona_data::data::Arcana,
-};
+use crate::{calculator::fusion_calculator, cli::fusion_cli::OutputType};
 
 #[derive(clap::Parser)]
 pub enum ListCommand {
     #[command(about = "List all Personas")]
     Personas {
-        #[arg(long = "arcana", help = "List of Arcanas to filter by")]
-        arcana: Vec<Arcana>,
+        #[arg(long = "arcanas", help = "List of Arcanas to filter by")]
+        arcanas: Vec<String>,
         #[arg(
             long = "min-level",
             help = "Only display Peronas at or above the minimum level given"
@@ -24,9 +22,9 @@ pub enum ListCommand {
 pub fn list_command(command: &ListCommand, output_type: &OutputType) {
     match command {
         ListCommand::Personas {
-            arcana,
+            arcanas,
             min_level,
             max_level,
-        } => fusion_calculator::list_all_personas(arcana, min_level, max_level, output_type),
+        } => fusion_calculator::list_all_personas(arcanas, min_level, max_level, output_type),
     }
 }

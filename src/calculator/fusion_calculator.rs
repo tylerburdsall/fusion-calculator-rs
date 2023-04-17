@@ -1,18 +1,14 @@
-use std::vec;
 use anyhow::Result;
+use std::vec;
 
 use itertools::Itertools;
 
 use crate::cli::fusion_cli::OutputType;
-use crate::persona_data::data::Arcana;
 use crate::persona_data::utils::{self, PersonaCombination, PersonaEntry};
 use crate::terminal::table::render_table;
 use crate::terminal::term::{output, output_err};
 
-fn get_fusion<'a>(
-    first: &'a str,
-    second: &'a str,
-) -> Result<Vec<PersonaEntry>> {
+fn get_fusion<'a>(first: &'a str, second: &'a str) -> Result<Vec<PersonaEntry>> {
     let persona_result = if let Some(special_result) = utils::get_special_fusion(first, second) {
         special_result
     } else {
@@ -95,7 +91,7 @@ pub fn fusions_to(persona: &str, output_type: &OutputType) {
         }
         return;
     }
-    match utils::get_fusions_to(persona) {
+    match utils::get_fusions_to(persona.to_string()) {
         Ok(fusions) => match output_type {
             OutputType::Table => {
                 let table = render_table(
@@ -123,7 +119,7 @@ pub fn fusions_to(persona: &str, output_type: &OutputType) {
 }
 
 pub fn list_all_personas(
-    arcanas: &Vec<Arcana>,
+    arcanas: &Vec<String>,
     min_level: &Option<usize>,
     max_level: &Option<usize>,
     output_type: &OutputType,
@@ -158,7 +154,7 @@ impl RenderOutputType for Vec<PersonaEntry> {
         self.iter()
             .map(|entry| {
                 vec![
-                    entry.name.clone(),
+                    entry.name.to_string(),
                     entry.data.level.to_string(),
                     entry.data.arcana.to_string(),
                 ]
@@ -176,10 +172,10 @@ impl RenderOutputType for Vec<PersonaCombination> {
         self.iter()
             .map(|entry| {
                 vec![
-                    entry.first.name.clone(),
+                    entry.first.name.to_string(),
                     entry.first.data.level.to_string(),
                     entry.first.data.arcana.to_string(),
-                    entry.second.name.clone(),
+                    entry.second.name.to_string(),
                     entry.second.data.level.to_string(),
                     entry.second.data.arcana.to_string(),
                 ]
