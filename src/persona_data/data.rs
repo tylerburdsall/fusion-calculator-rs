@@ -1,5 +1,4 @@
 use ::phf::phf_map;
-use phf::phf_set;
 use serde::Serialize;
 
 pub struct ArcanaCombination {
@@ -15,6 +14,8 @@ pub struct PersonaData {
 }
 
 // Criterion benchmarking has shown that searching through a 2D map is faster than a 1D slice of some arbitrary struct/tuple.
+// If we wanted to get fancy, we could flatten this into a 1D array of static strings and use some pointer arithmetic to
+// more quickly access this without memory overhead, but at that point we lose some code readability.
 pub static ARCANA_COMBINATIONS_MAP: phf::Map<&'static str, phf::Map<&'static str, &'static str>> = phf_map! {
     "Hermit" => phf_map! {
         "Hermit" => "Hermit",
@@ -574,29 +575,31 @@ pub static PERSONAS: phf::Map<&'static str, PersonaData> = phf_map! {
     "Tsukiyomi Picaro" => PersonaData { level: 55, arcana: "Moon" },
 };
 
-pub static SPECIAL_PERSONAS: phf::Map<&'static str, phf::Set<&'static str>> = phf_map! {
-    "Alice" => phf_set! { "Belial", "Nebiros"},
-    "Ardha" => phf_set! { "Shiva", "Parvati"},
-    "Asura" => phf_set! { "Jikokuten", "Zouchouten", "Koumokuten", "Bishamonten"},
-    "Black Frost" => phf_set! { "Jack-o'-Lantern", "Jack Frost", "King Frost"},
-    "Bugs" => phf_set! { "Pixie", "Pisaca", "Hariti"},
-    "Chi You" => phf_set! { "White Rider", "Hecatoncheires", "Thor", "Cu Chulainn", "Yoshitsune"},
-    "Flauros" => phf_set! { "Berith", "Eligor", "Orobas"},
-    "Hell Biker" => phf_set! { "Archangel", "Matador", "Decarabia"},
-    "Izanagi-no-Okami" => phf_set! { "Yamata-no-Orochi", "Throne", "Inugami", "Raja Naga", "Barong", "Norn"},
-    "Izanagi-no-Okami Picaro" => phf_set! { "Okuninushi", "Orthrus", "Kali", "Mithras", "Cu Chulainn", "Lucifer"},
-    "Kohryu" => phf_set! { "Seiryu", "Byakko", "Suzaku", "Genbu"},
-    "Lucifer" => phf_set! { "Anubis", "Ananta", "Trumpeter", "Michael", "Metatron", "Satan"},
-    "Metatron" => phf_set! { "Principality", "Power", "Dominion", "Melchizedek", "Sandalphon", "Michael"},
-    "Michael" => phf_set! { "Gabriel", "Raphael", "Uriel"},
-    "Neko Shogun" => phf_set! { "Kodama", "Sudama", "Anzu"},
-    "Ongyo-Ki" => phf_set! { "Kin-Ki", "Sui-Ki", "Fuu-Ki"},
-    "Satanael" => phf_set! { "Arsène", "Anzu", "Ishtar", "Satan", "Lucifer", "Michael"},
-    "Seth" => phf_set! { "Isis", "Anubis", "Thoth", "Horus"},
-    "Shiva" => phf_set! { "Barong", "Rangda"},
-    "Sraosha" => phf_set! { "Mithra", "Mithras", "Melchizedek", "Lilith", "Gabriel"},
-    "Tam Lin" => phf_set! { "Cait Sith", "High Pixie", "Leanan Sidhe"},
-    "Trumpeter" => phf_set! { "White Rider", "Red Rider", "Black Rider", "Pale Rider"},
-    "Vasuki" => phf_set! { "Naga", "Ananta", "Raja Naga"},
-    "Yoshitsune" => phf_set! { "Shiki-Ouji", "Arahabaki", "Okuninushi", "Yatagarasu", "Futsunushi"},
+// Criterion testing has shown that a static slice with small elements is much faster to use
+// than a static phf_set since the number of elements is quite small.
+pub static SPECIAL_PERSONAS: phf::Map<&'static str, &[&'static str]> = phf_map! {
+        "Alice" => &["Belial", "Nebiros"],
+        "Ardha" => &["Shiva", "Parvati"],
+        "Asura" => &["Jikokuten", "Zouchouten", "Koumokuten", "Bishamonten"],
+        "Black Frost" => &["Jack-o'-Lantern", "Jack Frost", "King Frost"],
+        "Bugs" => &["Pixie", "Pisaca", "Hariti"],
+        "Chi You" => &["White Rider", "Hecatoncheires", "Thor", "Cu Chulainn", "Yoshitsune"],
+        "Flauros" => &["Berith", "Eligor", "Orobas"],
+        "Hell Biker" => &["Archangel", "Matador", "Decarabia"],
+        "Izanagi-no-Okami" => &["Yamata-no-Orochi", "Throne", "Inugami", "Raja Naga", "Barong", "Norn"],
+        "Izanagi-no-Okami Picaro" => &["Okuninushi", "Orthrus", "Kali", "Mithras", "Cu Chulainn", "Lucifer"],
+        "Kohryu" => &["Seiryu", "Byakko", "Suzaku", "Genbu"],
+        "Lucifer" => &["Anubis", "Ananta", "Trumpeter", "Michael", "Metatron", "Satan"],
+        "Metatron" => &["Principality", "Power", "Dominion", "Melchizedek", "Sandalphon", "Michael"],
+        "Michael" => &["Gabriel", "Raphael", "Uriel"],
+        "Neko Shogun" => &["Kodama", "Sudama", "Anzu"],
+        "Ongyo-Ki" => &["Kin-Ki", "Sui-Ki", "Fuu-Ki"],
+        "Satanael" => &["Arsène", "Anzu", "Ishtar", "Satan", "Lucifer", "Michael"],
+        "Seth" => &["Isis", "Anubis", "Thoth", "Horus"],
+        "Shiva" => &["Barong", "Rangda"],
+        "Sraosha" => &["Mithra", "Mithras", "Melchizedek", "Lilith", "Gabriel"],
+        "Tam Lin" => &["Cait Sith", "High Pixie", "Leanan Sidhe"],
+        "Trumpeter" => &["White Rider", "Red Rider", "Black Rider", "Pale Rider"],
+        "Vasuki" => &["Naga", "Ananta", "Raja Naga"],
+        "Yoshitsune" => &["Shiki-Ouji", "Arahabaki", "Okuninushi", "Yatagarasu", "Futsunushi"],
 };

@@ -210,7 +210,7 @@ pub fn get_possible_fusions_from_persona(
 pub fn get_special_fusion(first: &str, second: &str) -> Option<PersonaEntry> {
     if let Some((persona_name, _)) = SPECIAL_PERSONAS
         .entries()
-        .find(|(_, value)| value.len() == 2 && value.contains(first) && value.contains(second))
+        .find(|(_, value)| value.len() == 2 && value.contains(&first) && value.contains(&second))
     {
         let persona_data = get_persona(persona_name)
             .unwrap_or_else(|_| panic!("Should have gotten data for {persona_name}"));
